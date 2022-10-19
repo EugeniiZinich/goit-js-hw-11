@@ -51,9 +51,28 @@
 }
 
 .search-input {
+  position: relative;
   border-radius: 20px;
   padding: 0 10;
   margin-right: 20px;
+  border: 3px solid;
+  outline: none;
+  animation: rotBGimg 3s linear infinite;
+  // transition: all 3s linear;
+}
+
+@keyframes rotBGimg {
+  0% {
+    border-color: #004ff9;
+  }
+
+  50% {
+    border-color: #fff94c;
+  }
+
+  100% {
+    border-color: #004ff9;
+  }
 }
 
 img {
