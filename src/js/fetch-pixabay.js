@@ -1,31 +1,46 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import axios from 'axios';
 const API_KEY = '30575168-17224cd1fdcc15493416f473f';
-const BASE_URL = 'https://pixabay.com/api/';
+
+const axios = require('axios');
+axios.defaults.baseURL = 'https://pixabay.com/api/';
 
 export default class PixabayApiService {
+  #totalPage = 0;
+  #perPage = 4;
+
   constructor() {
     this.searchQuery = '';
     this.page = 1;
   }
 
-  fetchPicture() {
+  async fetchPicture() {
     const searchParams = new URLSearchParams({
       q: this.searchQuery,
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: 'true',
-      per_page: '40',
     }).toString();
 
-    return fetch(
-      `${BASE_URL}?key=${API_KEY}&${searchParams}&page=${this.page}`
-    ).then(response => {
-      if (!response.ok) {
-        Notify.failure('Oops, there is no picture with that name');
-      }
-      this.page += 1;
-      return response.json();
-    });
+    const { data } = await axios.get(
+      `?key=${API_KEY}&${searchParams}&page=${this.page}&per_page=${
+        this.#perPage
+      }`
+    );
+    this.page += 1;
+    return data;
+    // return fetch(
+    //   `${BASE_URL}?key=${API_KEY}&${searchParams}&page=${this.page}&per_page=${
+    //     this.#perPage
+    //   }`
+    // ).then(response => {
+    //   if (!response.ok) {
+    //     Notify.failure('Oops, there is no picture with that name');
+    //   }
+    //   this.page += 1;
+
+    //   return response.json();
+    // });
   }
 
   get query() {
@@ -35,25 +50,16 @@ export default class PixabayApiService {
   set query(newQuery) {
     this.searchQuery = newQuery;
   }
+
+  resetPage() {
+    this.page = 1;
+  }
+
+  calculateTotalPage(total) {
+    this.#totalPage = Math.ceil(total / this.#perPage);
+  }
+
+  get showLoadMore() {
+    return this.page < this.#totalPage;
+  }
 }
-
-// export function fetchPicture(name) {
-//   const searchParams = new URLSearchParams({
-//     q: name,
-//     image_type: 'photo',
-//     orientation: 'horizontal',
-//     safesearch: 'true',
-//     per_page: '40',
-//   }).toString();
-
-//   return fetch(`${BASE_URL}?key=${API_KEY}&${searchParams}&page=${page}`).then(
-//     response => {
-//       page += 1;
-//       console.log(response);
-//       if (!response.ok) {
-//         Notify.failure('Oops, there is no picture with that name');
-//       }
-//       return response.json();
-//     }
-//   );
-// }
